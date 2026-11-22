@@ -1,14 +1,9 @@
 /**
  * =========================================================================
- * WEB VIRAL STUDIO v34 PRO MAX — DIRECTOR JSON + WEB AUDIO + VIDEO EXPORTER
- * Ejecuta el 100% del pack v14–v34 directamente en el navegador a 0€:
- * - Recibe un tema -> Llama a Cloudflare Worker (o Pollinations AI 0€) ->
- *   Genera un JSON de Dirección Pro Max (Guion Anti-IA + Bucle Infinito +
- *   Planos Multi-Cámara + B-Roll + Cast + Props + 50 SFX + Packaging Viral).
- * - Audita automáticamente el JSON (Claridad Segundo 0, Variedad Anti-Monotonía,
- *   Bucle Infinito, 50 SFX) y muestra la nota /100.
- * - Mezcla Voz (HeyGen / Workers AI TTS / Archivo subido / WebSpeech) +
- *   9 BGM con Ducking + 50 SFX en Web Audio API y exporta 1080x1920 @ 30fps!
+ * WEB VIRAL STUDIO v34 PRO MAX — DIRECTOR INTELIGENTE (FIX DEFINITIVO)
+ * - Conecta con Cloudflare Worker (Llama 3.3 70B + Voz MeloTTS/HeyGen + Flux 2D Art)
+ * - CERO coches random, CERO cajas vacías, CERO asteriscos en subtítulos,
+ *   CERO solapamientos de texto, y CERO vídeos mudos sin avisar!
  * =========================================================================
  */
 
@@ -25,23 +20,16 @@ const BGM_FILES = {
 };
 
 const SFX_KEYWORD_RULES = [
-  { kws: ["mito", "mentira", "error", "falso", "fallo", "nunca", "mal"], sfx: "error_buzz_hard", vol: 0.45 },
-  { kws: ["rebobina", "atrás", "vuelve"], sfx: "rewind_vhs", vol: 0.45 },
-  { kws: ["uno", "dos", "tres", "cuatro", "cinco", "primero", "segundo", "tercero"], sfx: "check_ok", vol: 0.42 },
-  { kws: ["agua", "mar", "río", "playa"], sfx: "water_splash", vol: 0.40 },
-  { kws: ["mensaje", "escribe", "móvil", "notificación", "whatsapp", "chat"], sfx: "notif_msg", vol: 0.42 },
-  { kws: ["dinero", "euros", "precio", "caro", "barato", "millones", "gastas", "pagar"], sfx: "money_chaching", vol: 0.42 },
-  { kws: ["alerta", "peligro", "emergencia", "cuidado"], sfx: "alarm_siren", vol: 0.35 },
-  { kws: ["reloj", "segundos", "minutos", "días", "horas", "tiempo"], sfx: "clock_tick_tense", vol: 0.38 },
-  { kws: ["secreto", "truco", "increíble", "brutal", "magia"], sfx: "magic_sparkle", vol: 0.40 },
-  { kws: ["pero", "espera", "cambia", "peor", "bestia", "giro"], sfx: "boom_cinematic", vol: 0.48 },
-  { kws: ["rompe", "cristal", "impacto", "choque"], sfx: "glass_shatter_hit", vol: 0.42 },
-  { kws: ["escaneo", "rayos", "radar", "analiza"], sfx: "laser_scan_pro", vol: 0.40 },
+  { kws: ["mito", "mentira", "error", "falso", "fallo", "nunca", "mal"], sfx: "error_buzz_hard", vol: 0.42 },
+  { kws: ["uno", "dos", "tres", "cuatro", "primero", "segundo", "tercero"], sfx: "check_ok", vol: 0.38 },
+  { kws: ["agua", "mar", "río", "playa"], sfx: "water_splash", vol: 0.36 },
+  { kws: ["dinero", "euros", "precio", "caro", "millones", "gastas"], sfx: "money_chaching", vol: 0.40 },
+  { kws: ["alerta", "peligro", "accidente", "emergencia", "cuidado"], sfx: "alarm_siren", vol: 0.30 },
+  { kws: ["reloj", "segundos", "minutos", "horas", "tiempo"], sfx: "clock_tick_tense", vol: 0.35 },
+  { kws: ["pero", "espera", "cambia", "peor", "giro"], sfx: "boom_cinematic", vol: 0.44 },
 ];
 
-const SFX_TRANSITION_POOL = [
-  "swipe_air_fast", "whoosh_heavy", "whoosh_zoom", "pop_bubble_triple", "pizzicato_pop", "ding_sparkle"
-];
+const SFX_TRANSITION_POOL = ["swipe_air_fast", "whoosh_heavy", "whoosh_zoom", "pizzicato_pop"];
 
 const canvas = document.getElementById("stage");
 const ctx = canvas.getContext("2d");
@@ -49,6 +37,7 @@ const ctx = canvas.getContext("2d");
 let currentPlan = null;
 let currentTimings = null;
 let currentSfxEvents = [];
+let shotImages = {};
 let audioCtx = null;
 let voiceBuffer = null;
 let bgmCache = {};
@@ -73,156 +62,70 @@ async function loadAudioBuffer(url, cacheObj, key) {
   try {
     const res = await fetch(url);
     if (!res.ok) return null;
-    const arr = await res.arrayBuffer();
-    const buf = await ensureAudioCtx().decodeAudioData(arr);
+    const buf = await ensureAudioCtx().decodeAudioData(await res.arrayBuffer());
     cacheObj[key] = buf;
     return buf;
-  } catch (e) {
-    return null;
-  }
+  } catch { return null; }
+}
+
+function cleanScript(txt) {
+  return (txt || "").replace(/[*_#`~]/g, "").replace(/\s+/g, " ").trim();
 }
 
 // =========================================================================
-// 1. PROMPT MAESTRO PARA QUE LA IA GENERE EL DIRECTOR JSON v34 PRO MAX
+// 1. PROMPT ESTRICTO ANTI-RANDOM PARA LLAMA 3.3 70B (CLOUDFLARE AI)
 // =========================================================================
 function buildDirectorPrompt(topic, durationSec, styleMode) {
-  const shotCount = Math.max(6, Math.round(durationSec / 3.4));
-  const targetWords = Math.round(durationSec * 2.55);
-  return `Eres el Director Creativo de un canal viral de TikTok/Shorts (+10M vistas) usando el motor v34 PRO MAX.
-TEMA DEL USUARIO: "${topic}"
-DURACIÓN OBJETIVO: ${durationSec} segundos (~${targetWords} palabras en español hablado natural, CERO clichés de IA).
-ESTILO PREFERIDO: ${styleMode}
+  const shotCount = Math.max(5, Math.min(8, Math.round(durationSec / 4.5)));
+  const targetWords = Math.round(durationSec * 2.45);
+  return `Crea el guion y los ${shotCount} planos visuales para un vídeo viral vertical sobre: "${topic}".
+DURACIÓN: ${durationSec}s (~${targetWords} palabras en español natural, SIN asteriscos ni markdown).
+ESTILO: ${styleMode}.
 
-REGLAS OBLIGATORIAS:
-1. SEGUNDO 0 CLARO: El primer plano y la primera frase enganchan sin saludar ("Si...", "Nunca...", "¿Por qué...").
-2. BUCLE INFINITO INVISIBLE: La última frase del guion DEBE terminar enlazando gramaticalmente con la primera palabra del guion (ej. "...y justo por eso mismo," -> enlaza con la frase 1). CERO "sígueme" ni "adiós".
-3. CERO MONOTONÍA (MULTI-PLANO): Crea exactamente ${shotCount} planos variados. El personaje aparece MÁXIMO en el 35% de los planos; el resto usa B-Rolls (neural, chat, map, gauge, radar, blueprint, gears, storm), kinetic_slide, comparison o widgets.
-4. Escribe los números del guion en LETRAS para que la voz los lea perfecto (ej: "noventa por ciento", "ciento doce").
+REGLAS ESTRICTAS (PROHIBIDO PONER COSAS ALEATORIAS):
+1. Cada plano DEBE ilustrar exactamente lo que se dice en ese momento del guion.
+2. En cada plano escribe "image_prompt" en INGLÉS describiendo una escena 2D concreta y visual del tema (ej: "orange aircraft flight recorder black box glowing inside a plane tail cutaway").
+3. Solo usa "split_compare" si rellenas "left_title", "left_body", "right_title", "right_body" con datos reales del tema.
+4. La última frase del guion debe enlazar en bucle con la primera (ej. "...y por eso mismo,").
+5. Números en LETRAS dentro de "script".
 
-DEVUELVE SOLO UN JSON VÁLIDO (sin markdown ni texto extra) con esta estructura exacta:
+DEVUELVE SOLO ESTE JSON VÁLIDO:
 {
-  "title": "TITULAR CORTO PORTADA",
-  "niche": "psicologia|supervivencia|dinero|gaming|historia|ciencia",
-  "bgm": "survival_tension|curiosity|docu_epic|synthwave_neon|pizzicato|emotional_piano|night_mystery|cinematic_build|lofi_story",
-  "subtitle_style": "neura_pill|top_box|docu_yellow|editorial_box",
-  "color_grade": "teal_orange|neon_cyber|deep_ocean|noir_docu",
-  "frame0": { "tag": "TEMA CORTO", "headline": "TITULAR 4 PALABRAS", "sub": "Gancho corto 5 palabras" },
-  "open_loop": "⏳ ESPERA AL GIRO FINAL...",
-  "script": "Guion completo hablado de ~${targetWords} palabras terminando en puente de bucle infinito,",
-  "tiktok_description": "Descripción viral corta con gancho y pregunta",
+  "title": "TITULAR 3 PALABRAS",
+  "bgm": "survival_tension|curiosity|docu_epic|synthwave_neon|pizzicato|emotional_piano|night_mystery",
+  "subtitle_style": "neura_pill|docu_yellow|top_box",
+  "color_grade": "teal_orange|deep_ocean|neon_cyber|noir_docu",
+  "frame0": { "tag": "CATEGORIA 2 PALABRAS", "headline": "TITULAR CORTO", "sub": "Subtítulo gancho 4 palabras" },
+  "script": "Guion limpio sin asteriscos de ~${targetWords} palabras terminando en puente de bucle,",
+  "tiktok_description": "Descripción corta con pregunta",
   "hashtags": ["#tag1", "#tag2", "#tag3", "#tag4", "#tag5", "#tag6"],
-  "pinned_comment": "Pregunta corta que dispare comentarios 👇",
+  "pinned_comment": "Pregunta corta para comentarios 👇",
   "shots": [
     {
-      "type": "world_char|broll_neural|broll_chat|broll_map|broll_gauge|broll_radar|broll_blueprint|broll_gears|broll_storm|kinetic_slide|split_compare|widget_stat",
-      "rig": "crash_zoom|orbit_3d|dutch_reveal|dolly_zoom_vertigo|tracking_pan|crane_drop|punch_snap|handheld_docu",
-      "shake": "impact_hit|handheld|rumble|heartbeat|none",
-      "transition": "diagonal_slash|shutter_split|whip_pan|zoom_through|glitch_slice",
-      "palette": "cyber_cyan|gold_luxury|ocean_xray|crimson_alert|emerald_money|noir_docu|sunset_warm",
-      "world_preset": "classroom|space|hospital|supermarket|courtroom|rooftop|combo",
-      "character": "detective|scientist|thief|gamer|pilot|client|doctor|astronaut|chef|student|police|robot_ai|none",
-      "headwear": "none|visor_cyber|crown_gold|headphones_neon|glasses_smart|fedora|cap_red",
-      "emotion": "shocked|thinking|happy|angry|smug|worried|neutral",
-      "gesture": "point_up|hands_up|chin_think|point_right|idle",
-      "prop": "prop_ai_chip|prop_money_bag|prop_smartphone|prop_chart_up|prop_dna|prop_fire|prop_lightning|prop_water_drop|prop_car|prop_plane|prop_rocket|prop_alarm|prop_lock|prop_key|none",
-      "overlay_stamp": "fx_stamp_mito|fx_stamp_real|fx_stamp_giro|fx_stamp_peligro|fx_badge_90pct|fx_badge_bucle|none",
-      "headline": "TEXTO CORTO EN PANTALLA",
-      "lines": ["LINEA 1", "LINEA 2", "IMPACTO"],
-      "stat_pct": 92,
-      "left_label": "ERROR",
-      "right_label": "CORRECTO",
-      "chat_msgs": [{"me": false, "text": "Mensaje 1"}, {"me": true, "text": "Respuesta"}]
+      "type": "ai_art|kinetic_slide|split_compare|widget_stat",
+      "image_prompt": "English description of the exact 2D scene matching this part of the script",
+      "rig": "dolly_in|dolly_out|orbit_3d|tracking_pan|handheld_docu",
+      "transition": "diagonal_slash|shutter_split|whip_pan|zoom_through",
+      "palette": "ocean_xray|cyber_cyan|gold_luxury|crimson_alert|emerald_money|noir_docu",
+      "headline": "DATO CORTO EN PANTALLA (MAX 4 PALABRAS)",
+      "lines": ["FRASE 1", "FRASE 2", "IMPACTO"],
+      "stat_pct": 95,
+      "left_title": "MITO",
+      "left_body": "Lo que todos creen",
+      "right_title": "REALIDAD",
+      "right_body": "Lo que pasa de verdad"
     }
   ]
 }`;
 }
 
-// =========================================================================
-// 2. GENERADOR INTELIGENTE DE RESPALDO LOCAL (SI NO HAY WORKER NI INTERNET)
-// =========================================================================
-function buildSmartFallbackPlan(topic, durationSec, styleMode) {
-  const cleanTopic = (topic || "El secreto que el 90% ignora").trim();
-  const shortTitle = cleanTopic.split(/\s+/).slice(0, 4).join(" ").toUpperCase();
-  const isMoney = /dinero|euro|precio|venta|negocio|supermercado|comprar/i.test(cleanTopic);
-  const isSurv = /agua|coche|fuego|sobreviv|peligro|avión|avion|playa/i.test(cleanTopic);
-  const isGame = /gta|minecraft|roblox|juego|gaming|pc/i.test(cleanTopic);
-
-  const bgm = isSurv ? "survival_tension" : (isGame ? "synthwave_neon" : (isMoney ? "pizzicato" : "curiosity"));
-  const pal = isSurv ? "ocean_xray" : (isGame ? "cyber_cyan" : (isMoney ? "emerald_money" : "gold_luxury"));
-  const tag = isSurv ? "SUPERVIVENCIA REAL" : (isGame ? "GAMING SECRETO" : (isMoney ? "PSICOLOGÍA REAL" : "DATO BRUTAL"));
-  const propMain = isSurv ? "prop_alarm" : (isGame ? "prop_gamepad" : (isMoney ? "prop_money_bag" : "prop_ai_chip"));
-  const charMain = isSurv ? "pilot" : (isGame ? "gamer" : (isMoney ? "client" : "detective"));
-
-  const script = `Casi nadie sabe la verdad sobre ${cleanTopic.toLowerCase()}. En serio. El noventa por ciento de la gente comete el mismo error en los primeros diez segundos. Piensan que funciona de una forma, pero por dentro pasa justo lo contrario. Espera, porque aquí viene el giro que lo cambia todo. Primero: fíjate en el detalle oculto que nadie mira. Segundo: cuando entiendes el mecanismo real, el resultado se multiplica por tres. Y lo más loco es que una vez que lo ves, ya no puedes dejar de notarlo, porque justo por eso mismo,`;
-
-  return {
-    title: shortTitle,
-    niche: isSurv ? "supervivencia" : (isGame ? "gaming" : (isMoney ? "dinero" : "psicologia")),
-    bgm,
-    subtitle_style: styleMode === "INK_EDITORIAL" ? "editorial_box" : (isGame ? "top_box" : "neura_pill"),
-    color_grade: isSurv ? "deep_ocean" : (isGame ? "neon_cyber" : "teal_orange"),
-    frame0: { tag, headline: shortTitle, sub: "El 90% falla en esto hoy" },
-    open_loop: "⏳ ESPERA AL GIRO FINAL...",
-    script,
-    tiktok_description: `${cleanTopic} 👀 ¿Tú también habías caído? Te leo abajo 👇 #curiosidades #sabiasque #datos #psicologia #viral #parati`,
-    hashtags: ["#curiosidades", "#sabiasque", "#datos", "#psicologia", "#viral", "#parati"],
-    pinned_comment: "Sé sincero: ¿ya sabías esto o te acaba de volar la cabeza? 👇",
-    shots: [
-      { type: "world_char", rig: "crash_zoom", shake: "impact_hit", transition: "diagonal_slash", palette: pal, world_preset: isMoney ? "supermarket" : "rooftop", character: charMain, headwear: "visor_cyber", emotion: "shocked", gesture: "point_up", prop: propMain, overlay_stamp: "none", headline: shortTitle },
-      { type: "broll_gauge", rig: "orbit_3d", shake: "handheld", transition: "shutter_split", palette: pal, stat_pct: 90, headline: "90% COMETE ESTE ERROR", overlay_stamp: "fx_badge_90pct" },
-      { type: "split_compare", rig: "dolly_zoom_vertigo", shake: "none", transition: "whip_pan", palette: pal, left_label: "LO QUE CREES", right_label: "LA REALIDAD", overlay_stamp: "fx_stamp_mito" },
-      { type: "kinetic_slide", rig: "punch_snap", shake: "impact_hit", transition: "glitch_slice", palette: "crimson_alert", lines: ["PERO AQUÍ", "VIENE", "EL GIRO"] },
-      { type: "broll_neural", rig: "dutch_reveal", shake: "handheld", transition: "diagonal_slash", palette: pal, headline: "EL MECANISMO OCULTO", overlay_stamp: "fx_stamp_clave" },
-      { type: "broll_blueprint", rig: "tracking_pan", shake: "none", transition: "zoom_through", palette: "ocean_xray", headline: "ANÁLISIS EN DETALLE", prop: propMain },
-      { type: "widget_stat", rig: "crane_drop", shake: "handheld", transition: "shutter_split", palette: "gold_luxury", stat_pct: 97, headline: "IMPACTO MULTIPLICADO x3", overlay_stamp: "fx_stamp_real" },
-      { type: "broll_gears", rig: "dolly_in", shake: "heartbeat", transition: "diagonal_slash", palette: pal, headline: "AHORA TODO ENCAJA", overlay_stamp: "fx_badge_bucle" }
-    ]
-  };
-}
-
-// =========================================================================
-// 3. AUDITOR AUTOMÁTICO v34 EN NAVEGADOR (CERO MONOTONÍA + BUCLE + 50 SFX)
-// =========================================================================
-function auditAndEnhancePlan(plan, durationSec) {
-  if (!plan || !plan.script) return buildSmartFallbackPlan("Tema viral", durationSec, "AUTO");
-  if (!Array.isArray(plan.shots) || plan.shots.length < 4) {
-    plan.shots = buildSmartFallbackPlan(plan.title || "Tema", durationSec, "AUTO").shots;
-  }
-
-  // Anti-Monotonía: si la IA puso demasiados "world_char", reemplaza algunos por B-Rolls ricos!
-  const brollPool = ["broll_neural", "broll_gauge", "broll_blueprint", "kinetic_slide", "split_compare", "broll_gears", "widget_stat", "broll_radar"];
-  let charCount = 0;
-  plan.shots.forEach((sh, i) => {
-    if (sh.type === "world_char") {
-      charCount++;
-      if (charCount > Math.max(2, Math.floor(plan.shots.length * 0.35))) {
-        sh.type = brollPool[i % brollPool.length];
-      }
-    }
-    if (!sh.rig) sh.rig = V34.Camera.RIGS[i % V34.Camera.RIGS.length];
-    if (!sh.transition) sh.transition = ["diagonal_slash", "shutter_split", "whip_pan", "zoom_through"][i % 4];
-  });
-
-  // Asegurar Frame 0 claro
-  if (!plan.frame0 || !plan.frame0.headline) {
-    plan.frame0 = { tag: "DATO VIRAL", headline: (plan.title || "MIRA ESTO").toUpperCase(), sub: "No te pierdas el final" };
-  }
-
-  // Calcular puntuación simulada 100 usuarios
-  const hasBroll = plan.shots.some(s => s.type.startsWith("broll_") || s.type === "kinetic_slide");
-  const hasLoopBridge = /por eso|porque|así que|cuando|entonces|,$|\.\.\.$/.test(plan.script.trim().toLowerCase());
-  const score = Math.min(99, 86 + (hasBroll ? 6 : 0) + (hasLoopBridge ? 5 : 0) + (plan.shots.length >= 6 ? 2 : 0));
-
-  return { plan, score, hasBroll, hasLoopBridge };
-}
-
 function buildWordTimings(scriptText, totalDur) {
-  const raw = scriptText.trim().split(/\s+/).filter(Boolean);
-  const wts = raw.map(w => Math.max(2.5, w.length) + (/[.?!]$/.test(w) ? 3.4 : (/,/.test(w) ? 1.4 : 0)));
+  const raw = cleanScript(scriptText).split(/\s+/).filter(Boolean);
+  const wts = raw.map(w => Math.max(2.5, w.length) + (/[.?!]$/.test(w) ? 3.2 : (/,/.test(w) ? 1.3 : 0)));
   const sum = wts.reduce((a, b) => a + b, 0) || 1;
-  let cur = 0.05;
+  let cur = 0.06;
   const words = raw.map((word, i) => {
-    const d = (wts[i] / sum) * Math.max(1, totalDur - 0.12);
+    const d = (wts[i] / sum) * Math.max(1, totalDur - 0.14);
     const it = { word, start: cur, end: cur + d * 0.90 };
     cur += d;
     return it;
@@ -231,9 +134,9 @@ function buildWordTimings(scriptText, totalDur) {
 }
 
 function choreographWebSFX(words, totalDur, shotCount) {
-  const events = [{ time: 0.03, sfx: "bass_drop_pro", vol: 0.45 }];
+  const events = [{ time: 0.03, sfx: "bass_drop_pro", vol: 0.40 }];
   const used = [0.03];
-  const canPlace = (t) => used.every(u => Math.abs(t - u) >= 1.9);
+  const canPlace = (t) => used.every(u => Math.abs(t - u) >= 2.2);
 
   for (const w of words) {
     const clean = w.word.toLowerCase().replace(/[.,?!¡¿:;«»"']/g, "");
@@ -250,98 +153,74 @@ function choreographWebSFX(words, totalDur, shotCount) {
   for (let i = 1; i < shotCount; i++) {
     const t = Math.max(0.1, i * shotDur - 0.08);
     if (canPlace(t)) {
-      events.push({ time: t, sfx: SFX_TRANSITION_POOL[i % SFX_TRANSITION_POOL.length], vol: 0.34 });
+      events.push({ time: t, sfx: SFX_TRANSITION_POOL[i % SFX_TRANSITION_POOL.length], vol: 0.30 });
       used.push(t);
     }
   }
-  events.push({ time: Math.max(0, totalDur - 0.45), sfx: "loop_riser_seamless", vol: 0.32 });
   return events.sort((a, b) => a.time - b.time);
 }
 
 // =========================================================================
-// 4. RENDERIZADOR DE CADA PLANO USANDO TODO EL PACK v14–v34 PRO MAX
+// 2. RENDERIZADOR LIMPIO (DIBUJOS 100% COHERENTES CON EL TEMA + CERO BUGS!)
 // =========================================================================
-function drawCastByName(c, name, x, groundY, sc, t, opts) {
-  const mapV30 = {
-    detective: V30.Cast.drawDetective, scientist: V30.Cast.drawScientist,
-    thief: V30.Cast.drawThief, gamer: V30.Cast.drawGamer,
-    pilot: V30.Cast.drawPilot, client: V30.Cast.drawClient
-  };
-  const mapV32 = {
-    doctor: V32.MoreCast.drawDoctor, astronaut: V32.MoreCast.drawAstronaut,
-    chef: V32.MoreCast.drawChef, student: V32.MoreCast.drawStudent,
-    police: V32.MoreCast.drawPolice, robot_ai: V32.MoreCast.drawRobotAI
-  };
-  if (mapV30[name]) mapV30[name](c, x, groundY, sc, t, opts);
-  else if (mapV32[name]) mapV32[name](c, x, groundY, sc, t, opts);
-  else V34.Factory.drawCharacterCombo(c, x, groundY, sc, t, opts);
-}
-
-function renderSingleShot(c, sh, localT, shotDur, globalT) {
-  const type = sh.type || "world_char";
-  const pal = sh.palette || "cyber_cyan";
-
-  if (type === "kinetic_slide") {
-    const lines = (Array.isArray(sh.lines) && sh.lines.length) ? sh.lines : [(sh.headline || "EL GIRO FINAL")];
-    V31.AE.drawFullKineticSlide(c, lines, localT, { accent: "#FACC15" });
-  } else if (type === "broll_neural") {
-    V31.BRoll.drawNeuralNetworkBroll(c, globalT, sh.headline || "CONEXIÓN CEREBRAL");
-  } else if (type === "broll_chat") {
-    V31.BRoll.drawLiveChatFeedBroll(c, localT, sh.chat_msgs || undefined);
-  } else if (type === "broll_map") {
-    V31.BRoll.drawAnimatedMapRouteBroll(c, localT, shotDur, "INICIO", sh.headline || "OBJETIVO");
-  } else if (type === "broll_gauge") {
-    const target = (sh.stat_pct || 88) / 100;
-    V31.BRoll.drawDangerGaugeBroll(c, Math.min(target, (localT / Math.max(0.6, shotDur * 0.65)) * target), sh.headline || "NIVEL CRÍTICO", globalT);
-  } else if (type === "broll_radar") {
-    V31.BRoll.drawRadarScanBroll(c, globalT, sh.headline || "ESCANEO ACTIVO");
-  } else if (type === "broll_blueprint") {
-    V31.BRoll.drawBlueprintScanBroll(c, globalT, sh.headline || "ANÁLISIS TÉCNICO", (cc) => {
-      if (sh.prop && sh.prop !== "none" && V33.Presets.draw(sh.prop, cc, 540, 920, 1.4, globalT)) return;
-      V30.Props.drawCarSide(cc, 540, 920, 1.35, globalT, { windowOpen: Math.min(1, localT / 1.8) });
-    });
-  } else if (type === "broll_gears") {
-    V31.BRoll.drawGearsMechanismBroll(c, globalT, sh.headline || "CÓMO FUNCIONA POR DENTRO");
-  } else if (type === "broll_storm") {
-    V31.BRoll.drawStormWeatherBroll(c, globalT);
-    if (sh.prop && sh.prop !== "none") V33.Presets.draw(sh.prop, c, 540, 920, 1.35, globalT);
-  } else if (type === "split_compare") {
-    V34.Factory.drawWorldCombo(c, globalT, { palette: pal, floor: "dark_slate", weather: "dust" });
-    V30.Editor.drawSplitComparison(c, sh.left_label || "ERROR", sh.right_label || "CORRECTO", Math.min(1, localT / 0.6), 470, 680);
-  } else if (type === "widget_stat") {
-    V34.Factory.drawWorldCombo(c, globalT, { palette: pal, floor: "neon_grid", weather: "sparkle" });
-    V34.Factory.drawAnimatedWidget(c, "progress_ring", 540, 860, localT, { targetPct: (sh.stat_pct || 94) / 100, label: sh.headline || "DATO REAL" });
-  } else {
-    // world_char: Escena completa + Prop + Personaje expresivo
-    const wp = sh.world_preset || "combo";
-    if (wp === "classroom") V32.Worlds.drawClassroomWorld(c, globalT, sh.headline || "DATO CLAVE");
-    else if (wp === "space") V32.Worlds.drawSpaceOrbitWorld(c, globalT);
-    else if (wp === "hospital") V32.Worlds.drawHospitalLabWorld(c, globalT);
-    else if (wp === "supermarket") V32.Worlds.drawSupermarketWorld(c, globalT);
-    else if (wp === "courtroom") V32.Worlds.drawCourtroomWorld(c, globalT);
-    else if (wp === "rooftop") V32.Worlds.drawCityRooftopWorld(c, globalT);
-    else V34.Factory.drawWorldCombo(c, globalT, { palette: pal, skyline: true, floor: "wood", weather: "god_rays" });
-
-    if (sh.prop && sh.prop !== "none") {
-      V33.Presets.draw(sh.prop, c, 770, 790, 1.05, globalT);
-    }
-    if (sh.character && sh.character !== "none") {
-      const cx = sh.prop && sh.prop !== "none" ? 320 : 540;
-      drawCastByName(c, sh.character, cx, 1480, 1.15, globalT, {
-        talking: true,
-        emotion: sh.emotion || "shocked",
-        gesture: sh.gesture || "point_up",
-        headwear: sh.headwear || "none",
-        lookAtX: 770, lookAtY: 790
-      });
+function wrapText(c, text, cx, cy, maxW, lineH) {
+  const words = (text || "").split(/\s+/);
+  let line = "", y = cy;
+  for (let i = 0; i < words.length; i++) {
+    const test = line ? line + " " + words[i] : words[i];
+    if (c.measureText(test).width > maxW && line) {
+      c.fillText(line, cx, y);
+      line = words[i];
+      y += lineH;
+    } else {
+      line = test;
     }
   }
+  if (line) c.fillText(line, cx, y);
+}
 
-  // Sello/Overlay de impacto si existe
-  if (sh.overlay_stamp && sh.overlay_stamp !== "none" && localT > 0.25) {
-    V27Edit.slamIn(c, 540, 415, localT - 0.25, (cc) => {
-      V33.Presets.draw(sh.overlay_stamp, cc, 0, 0, 1.0, globalT);
+function renderSingleShot(c, sh, idx, localT, shotDur, globalT) {
+  const type = sh.type || "ai_art";
+  const pal = sh.palette || "noir_docu";
+  const img = shotImages[idx];
+
+  if (type === "kinetic_slide") {
+    const lines = (Array.isArray(sh.lines) && sh.lines.length) ? sh.lines : [sh.headline || "LA CLAVE REAL"];
+    V31.AE.drawFullKineticSlide(c, lines, localT, { accent: "#FACC15" });
+  } else if (type === "split_compare") {
+    V34.Factory.drawWorldCombo(c, globalT, { palette: pal, floor: "dark_slate", weather: "dust" });
+    V30.Editor.drawSplitComparison(c, sh.left_title || "MITO", sh.right_title || "REALIDAD", Math.min(1, localT / 0.55), 450, 620);
+    // Rellenar SIEMPRE el texto dentro de las dos cajas (jamás vacías!)
+    c.save();
+    c.fillStyle = "#F8FAFC"; c.font = "700 34px 'Plus Jakarta Sans', sans-serif"; c.textAlign = "center";
+    wrapText(c, sh.left_body || "Lo que cree la mayoría", 289, 640, 400, 46);
+    c.globalAlpha = Math.min(1, localT / 0.55);
+    wrapText(c, sh.right_body || "Lo que ocurre realmente", 791, 640, 400, 46);
+    c.restore();
+  } else if (type === "widget_stat") {
+    V34.Factory.drawWorldCombo(c, globalT, { palette: pal, floor: "neon_grid", weather: "sparkle" });
+    V34.Factory.drawAnimatedWidget(c, "progress_ring", 540, 820, localT, {
+      targetPct: Math.min(100, Math.max(10, sh.stat_pct || 92)) / 100,
+      label: (sh.headline || "DATO REAL").slice(0, 26)
     });
+  } else {
+    // AI ART 2D ILUSTRADO EXACTO AL TEMA (Ken Burns suave + viñeta + tarjeta dato arriba)
+    if (img && img.complete && img.naturalWidth > 0) {
+      V25Director.drawArtPlate(c, img, localT, shotDur, { z0: 1.04, z1: 1.14, dx0: -12, dx1: 12 });
+      // Oscurecer ligeramente zona inferior para que los subtítulos siempre se lean al 100%
+      const g = c.createLinearGradient(0, 1180, 0, 1920);
+      g.addColorStop(0, "rgba(5,8,17,0)"); g.addColorStop(1, "rgba(5,8,17,0.88)");
+      c.fillStyle = g; c.fillRect(0, 1180, 1080, 740);
+    } else {
+      V34.Factory.drawWorldCombo(c, globalT, { palette: pal, floor: "dark_slate", weather: "god_rays" });
+      V31.AE.drawGlassCard3D(c, 540, 860, 840, 320, localT, (cc) => {
+        cc.fillStyle = "#FACC15"; cc.font = "900 54px 'Plus Jakarta Sans', sans-serif"; cc.textAlign = "center";
+        wrapText(cc, (sh.headline || currentPlan?.title || "DATO CLAVE").toUpperCase(), 0, -20, 740, 68);
+      });
+    }
+    if (sh.headline && idx > 0) {
+      V29.Edit.kineticLowerThird(c, sh.headline.toUpperCase(), currentPlan?.title || "", localT, 1140);
+    }
   }
 }
 
@@ -355,66 +234,65 @@ window.renderAt = function (t) {
   const sh = shots[idx];
 
   const drawFrame0 = (c, lT) => {
-    renderSingleShot(c, shots[0], lT, shotDur, lT);
+    renderSingleShot(c, shots[0], 0, lT, shotDur, lT);
     if (currentPlan.frame0) {
       V32.Frame0.drawInstantTopicColdOpen(c, currentPlan.frame0.tag, currentPlan.frame0.headline, currentPlan.frame0.sub, lT, 2.7);
     }
   };
 
-  const beats = V27Edit.getAutoBeatTimes(currentTimings.words);
   ctx.save();
-  V27Edit.applyAutoPunchZoom(ctx, t, beats, 0.075);
   V34.Camera.applyRig(ctx, t, localT, shotDur, {
-    rig: sh.rig || "handheld_docu",
+    rig: sh.rig || "dolly_in",
     easing: "expoOut",
-    shake: sh.shake || "handheld"
+    shake: "handheld",
+    intensity: 0.75
   });
 
-  // Transición real After Effects al entrar en cada plano
-  if (idx > 0 && localT < 0.32) {
-    const p = localT / 0.32;
+  if (idx > 0 && localT < 0.28) {
+    const p = localT / 0.28;
     const prevSh = shots[idx - 1];
-    const drawPrev = (c) => renderSingleShot(c, prevSh, shotDur - 0.05, shotDur, t);
-    const drawNext = (c) => renderSingleShot(c, sh, localT, shotDur, t);
+    const drawPrev = (c) => renderSingleShot(c, prevSh, idx - 1, shotDur - 0.05, shotDur, t);
+    const drawNext = (c) => renderSingleShot(c, sh, idx, localT, shotDur, t);
     if (sh.transition === "shutter_split") V31.AE.shutterSplitTransition(ctx, p, drawPrev, drawNext);
     else if (sh.transition === "whip_pan") V27Edit.whipPanTransition(ctx, p, "left", drawPrev, drawNext);
     else if (sh.transition === "zoom_through") V27Edit.zoomThroughTransition(ctx, p, drawPrev, drawNext);
-    else if (sh.transition === "glitch_slice") V31.AE.glitchSliceTransition(ctx, p, drawNext);
     else V31.AE.diagonalSlashTransition(ctx, p, drawPrev, drawNext);
   } else {
-    renderSingleShot(ctx, sh, localT, shotDur, t);
+    renderSingleShot(ctx, sh, idx, localT, shotDur, t);
   }
   ctx.restore();
 
-  // Postproducción After Effects + Lens Flare + Color Grade + Cinema Finish
   V34.Camera.applyLensPostFX(ctx, t, localT, "anamorphic_flare");
   V27Edit.colorGrade(ctx, currentPlan.color_grade || "teal_orange");
-  V25FX.drawParticles(ctx, t, 18, "dust");
-  V25FX.drawCinemaFinish(ctx, t, 0.32);
+  V25FX.drawCinemaFinish(ctx, t, 0.28);
 
-  // Claridad en Segundo 0 + Open Loop + Barra de Capítulos + Barra Retención
   if (currentPlan.frame0 && t <= 2.75) {
     V32.Frame0.drawInstantTopicColdOpen(ctx, currentPlan.frame0.tag, currentPlan.frame0.headline, currentPlan.frame0.sub, t, 2.7);
-  } else if (currentPlan.open_loop && t < dur - 2.0) {
-    V30.Editor.drawOpenLoopBadge(ctx, currentPlan.open_loop, t);
   }
-  V29.Edit.drawChapterBar(ctx, ["GANCHO", "EL ERROR", "EL GIRO", "LA CLAVE"], Math.min(3, Math.floor((t / Math.max(1, dur)) * 4)));
+  V29.Edit.drawChapterBar(ctx, ["GANCHO", "HISTORIA", "DATO", "CIERRE"], Math.min(3, Math.floor((t / Math.max(1, dur)) * 4)));
   V27Edit.drawRetentionBar(ctx, t / Math.max(1, dur));
 
-  // Subtítulos dinámicos sincronizados
-  const subSt = currentPlan.subtitle_style || "neura_pill";
-  if (subSt === "editorial_box") V18.Ink.drawEditorialSubBox(ctx, currentTimings.words, t, 1340);
-  else if (subSt === "docu_yellow") V26.Docu25D.drawDocuSubs(ctx, currentTimings.words, t, 1460);
-  else if (subSt === "top_box") V14.drawSubtitles(ctx, currentTimings.words, t, "top_box");
-  else V26.NeuraPsico.drawDarkPillSubs(ctx, currentTimings.words, t, 1420);
+  // Subtítulos limpios en zona segura inferior (sin chocarse con nada!)
+  const subSt = currentPlan.subtitle_style || "docu_yellow";
+  if (subSt === "top_box") V14.drawSubtitles(ctx, currentTimings.words, t, "top_box");
+  else if (subSt === "neura_pill") V26.NeuraPsico.drawDarkPillSubs(ctx, currentTimings.words, t, 1460);
+  else V26.Docu25D.drawDocuSubs(ctx, currentTimings.words, t, 1480);
 
-  // BUCLE INFINITO INVISIBLE (Match-Cut al Frame 0 en los últimos 0.45s!)
   V33.Loop.applySeamlessLoopEnd(ctx, t, dur, drawFrame0);
 };
 
 // =========================================================================
-// 5. CONEXIÓN IA (CLOUDFLARE WORKER -> POLLINATIONS 0€ -> FALLBACK LOCAL)
+// 3. GENERACIÓN COMPLETA CON CLOUDFLARE AI (GUION + ILUSTRACIONES 2D + VOZ!)
 // =========================================================================
+async function loadImageFromBlob(blob) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(null);
+    img.src = URL.createObjectURL(blob);
+  });
+}
+
 async function generateFullVideoFromTopic() {
   const topic = document.getElementById("topicInput").value.trim();
   if (!topic) { setStatus("❌ Escribe un tema primero, bro.", "#f43f5e"); return; }
@@ -423,30 +301,30 @@ async function generateFullVideoFromTopic() {
   const styleMode = document.getElementById("styleSel").value || "AUTO";
   const workerUrl = document.getElementById("workerUrl").value.trim().replace(/\/+$/, "");
 
-  setStatus("🧠 1/3 — Diseñando guion Anti-IA + Bucle Infinito + Planos v34 PRO MAX...", "#fbbf24");
+  if (workerUrl) localStorage.setItem("v34_worker_url", workerUrl);
+
+  setStatus("🧠 1/3 — Creando guion y escenas exactas al tema con Cloudflare AI (Llama 3.3)...", "#fbbf24");
   let rawPlan = null;
 
-  // A) Si el usuario configuró su Cloudflare Worker (0€), úsalo primero
   if (workerUrl) {
     try {
       const r = await fetch(`${workerUrl}/api/plan`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ topic, duration: durationSec, style: styleMode, prompt: buildDirectorPrompt(topic, durationSec, styleMode) })
+        body: JSON.stringify({ prompt: buildDirectorPrompt(topic, durationSec, styleMode) })
       });
       if (r.ok) rawPlan = await r.json();
-    } catch (e) { console.warn("Worker /api/plan fallback:", e); }
+    } catch (e) { console.warn("Worker /api/plan error:", e); }
   }
 
-  // B) Fallback 100% GRATIS sin servidor: Pollinations Text AI (funciona directo en GitHub Pages!)
-  if (!rawPlan) {
+  if (!rawPlan || !rawPlan.script) {
     try {
       const res = await fetch("https://text.pollinations.ai/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           messages: [
-            { role: "system", content: "Responde ÚNICAMENTE con un objeto JSON válido sin bloques markdown." },
+            { role: "system", content: "Devuelve SOLO un JSON válido sin markdown." },
             { role: "user", content: buildDirectorPrompt(topic, durationSec, styleMode) }
           ],
           model: "openai",
@@ -454,63 +332,81 @@ async function generateFullVideoFromTopic() {
         })
       });
       if (res.ok) {
-        const txt = await res.text();
-        const match = txt.match(/\{[\s\S]*\}/);
+        const match = (await res.text()).match(/\{[\s\S]*\}/);
         if (match) rawPlan = JSON.parse(match[0]);
       }
-    } catch (e) { console.warn("Pollinations AI fallback:", e); }
+    } catch (e) { console.warn("Pollinations fallback error:", e); }
   }
 
-  // C) Respaldo local instantáneo garantizado
-  if (!rawPlan) rawPlan = buildSmartFallbackPlan(topic, durationSec, styleMode);
+  if (!rawPlan || !rawPlan.script) {
+    setStatus("❌ No se pudo conectar con la IA. Pega la URL de tu Cloudflare Worker abajo.", "#f43f5e");
+    return;
+  }
 
-  // Auditoría v34 automática
-  const audited = auditAndEnhancePlan(rawPlan, durationSec);
-  currentPlan = audited.plan;
+  rawPlan.script = cleanScript(rawPlan.script);
+  currentPlan = rawPlan;
+  shotImages = {};
 
-  // Paso 2/3: Intentar generar VOZ REAL IA automáticamente si hay Cloudflare Worker
+  // 2/3: Generar ilustraciones 2D REALES del tema para cada plano `ai_art`!
+  if (workerUrl) {
+    setStatus("🎨 2/3 — Dibujando escenas 2D exactas al tema con Cloudflare Flux AI...", "#fbbf24");
+    await Promise.all(
+      (currentPlan.shots || []).map(async (sh, idx) => {
+        if (sh.type !== "ai_art" || !sh.image_prompt) return;
+        try {
+          const ir = await fetch(`${workerUrl}/api/image`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ prompt: sh.image_prompt })
+          });
+          if (ir.ok) {
+            const img = await loadImageFromBlob(await ir.blob());
+            if (img) shotImages[idx] = img;
+          }
+        } catch (e) { console.warn("Image gen error shot", idx, e); }
+      })
+    );
+  }
+
+  // 3/3: Generar VOZ REAL EN ESPAÑOL (Cloudflare MeloTTS / HeyGen)
   voiceBuffer = null;
   if (workerUrl) {
-    setStatus("🎙️ 2/3 — Generando VOZ HUMANA IA (HeyGen / Workers AI)...", "#fbbf24");
+    setStatus("🎙️ 3/3 — Generando VOZ REAL en español con Cloudflare AI...", "#fbbf24");
     try {
       const tr = await fetch(`${workerUrl}/api/tts`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: currentPlan.script, mood: currentPlan.bgm || "curiosity" })
+        body: JSON.stringify({ text: currentPlan.script })
       });
       if (tr.ok) {
         const arr = await tr.arrayBuffer();
-        if (arr.byteLength > 2000) {
+        if (arr.byteLength > 1500) {
           voiceBuffer = await ensureAudioCtx().decodeAudioData(arr);
         }
       }
-    } catch (e) { console.warn("Worker /api/tts fallback:", e); }
+    } catch (e) { console.warn("TTS error:", e); }
   }
 
   const finalDur = voiceBuffer ? voiceBuffer.duration : durationSec;
   currentTimings = buildWordTimings(currentPlan.script, finalDur);
   currentSfxEvents = choreographWebSFX(currentTimings.words, finalDur, currentPlan.shots.length);
 
-  // Actualizar UI con Guion, Nota /100 y Packaging Viral (Hashtags + Descripción + Comentario)
   document.getElementById("scriptOut").value = currentPlan.script;
-  document.getElementById("scoreBadge").textContent = `🏆 Viralidad v34: ${audited.score}/100 · ${currentPlan.shots.length} Planos · ${currentSfxEvents.length} SFX · Bucle ∞`;
+  document.getElementById("scoreBadge").textContent =
+    `🏆 v34 PRO MAX · ${currentPlan.shots.length} Escenas · ${Object.keys(shotImages).length} Ilustraciones IA · ${voiceBuffer ? "🎙️ VOZ IA LISTA" : "⚠️ SIN VOZ (Conecta Worker)"}`;
   document.getElementById("pkgBox").innerHTML =
     `<b>📱 Descripción:</b> ${currentPlan.tiktok_description || ""}<br>` +
     `<b>🏷️ Hashtags:</b> ${(currentPlan.hashtags || []).join(" ")}<br>` +
     `<b>📌 Comentario fijado:</b> ${currentPlan.pinned_comment || ""}`;
 
   window.renderAt(0.0);
-  setStatus(
-    voiceBuffer
-      ? `✅ ¡VÍDEO + VOZ IA LISTOS (${finalDur.toFixed(1)}s)! Dale a Preview o Descargar Vídeo.`
-      : `✅ ¡VÍDEO LISTO (${finalDur.toFixed(1)}s)! Dale a Preview (voz navegador) o sube tu MP3 / conecta Cloudflare Worker para voz IA en el export.`,
-    "#00f5d4"
-  );
+  if (voiceBuffer) {
+    setStatus(`✅ ¡VÍDEO + DIBUJOS IA + VOZ LISTOS (${finalDur.toFixed(1)}s)! Dale a Preview o Descargar.`, "#00f5d4");
+  } else {
+    setStatus(`⚠️ Guion listo, pero SIN VOZ ni dibujos IA porque falta tu URL de Cloudflare Worker abajo.`, "#facc15");
+  }
 }
 
-// =========================================================================
-// 6. REPRODUCCIÓN Y GRABACIÓN 1080x1920 @ 30FPS CON WEB AUDIO (VOZ + BGM + 50 SFX)
-// =========================================================================
 function stopPlayback() {
   if (rafId) cancelAnimationFrame(rafId);
   activeSources.forEach(s => { try { s.stop(); } catch (_) {} });
@@ -521,33 +417,33 @@ function stopPlayback() {
 
 async function playOrExportVideo(record = false) {
   if (!currentPlan || !currentTimings) {
-    await generateFullVideoFromTopic();
-    if (!currentPlan) return;
+    setStatus("❌ Primero escribe un tema y pulsa '1. GENERAR VÍDEO VIRAL CON IA'.", "#f43f5e");
+    return;
   }
+  if (record && !voiceBuffer) {
+    const ok = confirm("⚠️ Todavía no hay pista de VOZ conectada (falta la URL de Cloudflare Worker o subir un MP3). Si grabas ahora saldrá solo con música y SFX. ¿Quieres grabar igual?");
+    if (!ok) return;
+  }
+
   stopPlayback();
   const ac = ensureAudioCtx();
   const dur = currentTimings.duration;
 
-  setStatus(record ? "🔊 Cargando BGM + 50 SFX para grabar 1080×1920..." : "🔊 Cargando audio de estudio...", "#fbbf24");
-
-  // Precargar BGM + SFX del timeline
   const bgmUrl = BGM_FILES[currentPlan.bgm] || BGM_FILES.curiosity;
   const bgmBuf = await loadAudioBuffer(bgmUrl, bgmCache, currentPlan.bgm);
   const sfxBuffers = await Promise.all(
     currentSfxEvents.map(ev => loadAudioBuffer(`recursos/sfx/${ev.sfx}.wav`, sfxCache, ev.sfx))
   );
 
-  // Router Web Audio (grabación o altavoces)
   const masterGain = ac.createGain();
   masterGain.gain.value = 0.95;
-  let destNode = ac.destination;
   let recorder = null;
   const chunks = [];
 
   if (record) {
     const streamDest = ac.createMediaStreamDestination();
     masterGain.connect(streamDest);
-    masterGain.connect(ac.destination); // Para oírlo mientras graba
+    masterGain.connect(ac.destination);
     const tracks = [...canvas.captureStream(30).getVideoTracks(), ...streamDest.stream.getAudioTracks()];
     const mime = MediaRecorder.isTypeSupported("video/mp4;codecs=avc1")
       ? "video/mp4;codecs=avc1"
@@ -556,109 +452,80 @@ async function playOrExportVideo(record = false) {
     recorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
     recorder.onstop = () => {
       const ext = mime.includes("mp4") ? "mp4" : "webm";
-      const blob = new Blob(chunks, { type: mime });
       const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
+      a.href = URL.createObjectURL(new Blob(chunks, { type: mime }));
       a.download = `viral_v34_${Date.now()}.${ext}`;
       a.click();
-      setStatus(`✅ ¡Vídeo v34 PRO MAX descargado (.${ext}) en 1080×1920!`, "#00f5d4");
+      setStatus(`✅ ¡Vídeo v34 descargado (.${ext}) con voz, dibujos y subtítulos!`, "#00f5d4");
     };
     recorder.start();
-    setStatus("🔴 Grabando vídeo v34 PRO MAX en 1080×1920 (no cierres esta pestaña)...", "#f43f5e");
+    setStatus("🔴 Grabando vídeo 1080×1920...", "#f43f5e");
   } else {
-    masterGain.connect(destNode);
-    setStatus("▶️ Reproduciendo Preview v34 PRO MAX (con BGM + SFX + Subtítulos)...", "#00f5d4");
+    masterGain.connect(ac.destination);
+    setStatus("▶️ Reproduciendo Preview...", "#00f5d4");
   }
 
   const now = ac.currentTime + 0.05;
-
-  // 1. Pista de Voz (o Web Speech preview si no hay buffer)
   if (voiceBuffer) {
     const vs = ac.createBufferSource();
     vs.buffer = voiceBuffer;
     vs.connect(masterGain);
     vs.start(now);
     activeSources.push(vs);
-  } else if (!record && window.speechSynthesis) {
-    const utter = new SpeechSynthesisUtterance(currentPlan.script);
-    utter.lang = "es-ES";
-    utter.rate = 1.08;
-    window.speechSynthesis.speak(utter);
   }
-
-  // 2. Pista BGM con ducking suave
   if (bgmBuf) {
     const bs = ac.createBufferSource();
     bs.buffer = bgmBuf;
     bs.loop = true;
     const bgGain = ac.createGain();
-    bgGain.gain.value = voiceBuffer ? 0.16 : 0.24;
+    bgGain.gain.value = voiceBuffer ? 0.14 : 0.22;
     bs.connect(bgGain);
     bgGain.connect(masterGain);
     bs.start(now);
     bs.stop(now + dur + 0.1);
     activeSources.push(bs);
   }
-
-  // 3. Pista de SFX sincronizados al milisegundo
   currentSfxEvents.forEach((ev, i) => {
     const sb = sfxBuffers[i];
     if (!sb) return;
     const ss = ac.createBufferSource();
     ss.buffer = sb;
     const sg = ac.createGain();
-    sg.gain.value = ev.vol || 0.38;
+    sg.gain.value = ev.vol || 0.35;
     ss.connect(sg);
     sg.connect(masterGain);
     ss.start(now + ev.time);
     activeSources.push(ss);
   });
 
-  // Loop de renderizado 30fps
   isPlaying = true;
   const t0 = performance.now();
   function frame(ts) {
     if (!isPlaying) return;
     const t = (ts - t0) / 1000;
     window.renderAt(Math.min(t, dur));
-    if (t < dur) {
-      rafId = requestAnimationFrame(frame);
-    } else {
+    if (t < dur) rafId = requestAnimationFrame(frame);
+    else {
       isPlaying = false;
       if (recorder && recorder.state === "recording") recorder.stop();
-      else setStatus("✅ Preview completado (con bucle infinito al segundo 0).", "#00f5d4");
+      else setStatus("✅ Preview terminado.", "#00f5d4");
     }
   }
   rafId = requestAnimationFrame(frame);
 }
 
-// Subida manual de voz MP3/WAV
 document.getElementById("voiceFileInput").addEventListener("change", async (e) => {
   const f = e.target.files[0];
   if (!f) return;
-  try {
-    voiceBuffer = await ensureAudioCtx().decodeAudioData(await f.arrayBuffer());
-    if (currentPlan) {
-      currentTimings = buildWordTimings(currentPlan.script, voiceBuffer.duration);
-      currentSfxEvents = choreographWebSFX(currentTimings.words, voiceBuffer.duration, currentPlan.shots.length);
-    }
-    setStatus(`✅ Voz cargada (${voiceBuffer.duration.toFixed(1)}s). ¡Ahora dale a Preview o Descargar!`, "#00f5d4");
-  } catch (err) {
-    setStatus("❌ Error al leer el audio: " + err.message, "#f43f5e");
+  voiceBuffer = await ensureAudioCtx().decodeAudioData(await f.arrayBuffer());
+  if (currentPlan) {
+    currentTimings = buildWordTimings(currentPlan.script, voiceBuffer.duration);
+    currentSfxEvents = choreographWebSFX(currentTimings.words, voiceBuffer.duration, currentPlan.shots.length);
   }
+  setStatus(`✅ Voz MP3 cargada (${voiceBuffer.duration.toFixed(1)}s).`, "#00f5d4");
 });
 
-// Arrancar con un vídeo demo ya cargado para que se vea increíble al instante!
 window.addEventListener("DOMContentLoaded", () => {
-  const demo = auditAndEnhancePlan(buildSmartFallbackPlan("El truco de los supermercados con el precio 9,99€", 28, "AUTO"), 28);
-  currentPlan = demo.plan;
-  currentTimings = buildWordTimings(currentPlan.script, 28);
-  currentSfxEvents = choreographWebSFX(currentTimings.words, 28, currentPlan.shots.length);
-  document.getElementById("scriptOut").value = currentPlan.script;
-  document.getElementById("scoreBadge").textContent = `🏆 Viralidad v34: ${demo.score}/100 · ${currentPlan.shots.length} Planos · ${currentSfxEvents.length} SFX · Bucle ∞`;
-  document.getElementById("pkgBox").innerHTML =
-    `<b>📱 Descripción:</b> ${currentPlan.tiktok_description}<br>` +
-    `<b>🏷️ Hashtags:</b> ${currentPlan.hashtags.join(" ")}<br>` +
-    `<b>📌 Comentario fijado:</b> ${currentPlan.pinned_comment}`;
-  window.renderAt(0.2);
+  const saved = localStorage.getItem("v34_worker_url");
+  if (saved && document.getElementById("workerUrl")) document.getElementById("workerUrl").value = saved;
 });
