@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>⚡ Viral Studio v34 PRO MAX — Generador Web de Vídeos Virales 0€</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #050811; --panel: rgba(13, 20, 38, 0.94); --border: #23355c;
+      --cyan: #00f5d4; --gold: #facc15; --pink: #f43f5e; --purple: #8b5cf6; --muted: #94a3b8;
+    }
+    * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+    body {
+      margin: 0; min-height: 100vh; color: #f8fafc;
+      background: radial-gradient(circle at 18% 0%, #1d2b53 0%, #050811 58%);
+      display: flex; flex-wrap: wrap; gap: 26px; justify-content: center; align-items: flex-start; padding: 22px;
+    }
+    .panel {
+      width: 490px; max-width: 100%; background: var(--panel); backdrop-filter: blur(18px);
+      border: 1px solid var(--border); border-radius: 24px; padding: 22px;
+      box-shadow: 0 26px 70px rgba(0, 0, 0, 0.78);
+    }
+    .brand { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    h1 {
+      margin: 0; font-size: 22px; font-weight: 900;
+      background: linear-gradient(90deg, var(--cyan), #38bdf8, var(--purple));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .pill {
+      font-size: 11px; font-weight: 800; padding: 5px 10px; border-radius: 999px;
+      background: rgba(0, 245, 212, 0.14); color: var(--cyan); border: 1px solid rgba(0, 245, 212, 0.35);
+    }
+    .sub { font-size: 12.5px; color: var(--muted); margin: 0 0 14px; line-height: 1.45; }
+    label.lbl { display: block; font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin: 10px 0 4px; letter-spacing: 0.4px; }
+    input[type=text], select, textarea {
+      width: 100%; background: #080d1a; color: #f8fafc; border: 1px solid #2b406e;
+      border-radius: 12px; padding: 11px 13px; font-size: 13.5px; outline: none; transition: border-color .15s;
+    }
+    input[type=text]:focus, select:focus, textarea:focus { border-color: var(--cyan); }
+    textarea { height: 92px; resize: vertical; line-height: 1.45; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .btn {
+      width: 100%; padding: 13px 16px; border: none; border-radius: 14px; font-size: 14.5px;
+      font-weight: 900; cursor: pointer; margin-top: 10px; transition: transform .08s, filter .15s;
+    }
+    .btn:hover { filter: brightness(1.07); }
+    .btn:active { transform: scale(0.98); }
+    .btn-magic { background: linear-gradient(135deg, #00f5d4, #38bdf8, #8b5cf6); color: #050811; }
+    .btn-play  { background: linear-gradient(135deg, #facc15, #f59e0b); color: #0f172a; }
+    .btn-rec   { background: linear-gradient(135deg, #f43f5e, #e11d48); color: #ffffff; }
+    .score {
+      margin-top: 12px; padding: 9px 12px; border-radius: 12px; font-size: 12.5px; font-weight: 800;
+      background: rgba(250, 204, 21, 0.12); border: 1px solid rgba(250, 204, 21, 0.35); color: var(--gold);
+    }
+    .pkg {
+      margin-top: 10px; padding: 11px 13px; border-radius: 12px; font-size: 12px; line-height: 1.5;
+      background: #080e1d; border: 1px solid #213256; color: #cbd5e1;
+    }
+    details {
+      margin-top: 12px; padding: 10px 12px; border-radius: 12px;
+      background: #080d1a; border: 1px dashed #334155; font-size: 12.5px;
+    }
+    summary { cursor: pointer; font-weight: 800; color: #38bdf8; }
+    #status { margin-top: 10px; font-size: 12.5px; font-weight: 700; min-height: 22px; color: var(--cyan); }
+    .stage-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    canvas {
+      width: 348px; height: 618px; border-radius: 28px; border: 3px solid #2b406e;
+      background: #000; box-shadow: 0 30px 75px rgba(0, 0, 0, 0.85);
+    }
+    .mini-note { font-size: 11.5px; color: var(--muted); text-align: center; max-width: 348px; }
+  </style>
+</head>
+<body>
+  <div class="panel">
+    <div class="brand">
+      <h1>⚡ Viral Studio v34 PRO MAX</h1>
+      <span class="pill">100% GRATIS · 0€</span>
+    </div>
+    <p class="sub">Escribe cualquier tema y el motor <b>v34 PRO MAX</b> crea el guion Anti-IA, bucle infinito, 8,640+ cámaras, B-Roll, subtítulos, 9 BGM y 50 SFX directo en tu navegador.</p>
+
+    <label class="lbl">1. ¿De qué trata tu vídeo viral?</label>
+    <input type="text" id="topicInput" placeholder="Ej: Por qué los aviones tienen un agujerito en la ventana" />
+
+    <div class="grid2">
+      <div>
+        <label class="lbl">Duración</label>
+        <select id="durSel">
+          <option value="26">26s (Ultra Viral)</option>
+          <option value="38" selected>38s (Retención Top)</option>
+          <option value="52">52s (Historia Completa)</option>
+        </select>
+      </div>
+      <div>
+        <label class="lbl">Estilo Visual</label>
+        <select id="styleSel">
+          <option value="AUTO" selected>⚡ Automático (PRO MAX)</option>
+          <option value="NEURA_PSICO">🧠 Reto Psicología</option>
+          <option value="ABISMO_XRAY">🌊 Supervivencia X-Ray</option>
+          <option value="NEON_GAMING">🎮 Neon Gaming 2.5D</option>
+          <option value="INK_EDITORIAL">✒️ Tinta y Papel Editorial</option>
+          <option value="DOCU_25D">🎬 Documental 2.5D</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="btn btn-magic" onclick="generateFullVideoFromTopic()">⚡ 1. GENERAR VÍDEO VIRAL CON IA</button>
+
+    <div id="scoreBadge" class="score">🏆 Viralidad v34: Cargando...</div>
+
+    <label class="lbl">Guion Generado (con Gancho 0.0s + Bucle Infinito)</label>
+    <textarea id="scriptOut" readonly></textarea>
+
+    <div class="grid2">
+      <button class="btn btn-play" onclick="playOrExportVideo(false)">▶️ 2. Ver Preview</button>
+      <button class="btn btn-rec" onclick="playOrExportVideo(true)">⬇️ 3. Descargar Vídeo</button>
+    </div>
+
+    <div id="status">Listo. Escribe un tema y dale a Generar Vídeo Viral.</div>
+    <div id="pkgBox" class="pkg"></div>
+
+    <details>
+      <summary>⚙️ Conexión Cloudflare Worker (Voz IA + Llama 3 Gratis) / Subir Voz MP3</summary>
+      <label class="lbl">URL de tu Cloudflare Worker (Opcional, para Voz IA integrada)</label>
+      <input type="text" id="workerUrl" placeholder="https://tu-viral-worker.tu-cuenta.workers.dev" />
+      <label class="lbl">O sube tu voz humana gratis (Google AI Studio / Fish Audio / CapCut)</label>
+      <input type="file" id="voiceFileInput" accept="audio/*" style="color:#cbd5e1; font-size:12px; margin-top:4px;" />
+    </details>
+  </div>
+
+  <div class="stage-wrap">
+    <canvas id="stage" width="1080" height="1920"></canvas>
+    <div class="mini-note">Renderizado real 1080×1920 (9:16) a 30fps con el motor completo v14–v34 PRO MAX.</div>
+  </div>
+
+  <!-- TODOS LOS MOTORES DEL PACK v14 A v34 PRO MAX -->
+  <script src="motor_escenas_v14/scene_graph_engine.js"></script>
+  <script src="motor_escenas_v16/interactive_hud_components.js"></script>
+  <script src="motor_escenas_v18/ink_paper_engine.js"></script>
+  <script src="motor_escenas_v23/pro_props_library.js"></script>
+  <script src="motor_escenas_v25/cinematic_fx_engine.js"></script>
+  <script src="motor_escenas_v25/timeline_director.js"></script>
+  <script src="motor_escenas_v26/five_viral_archetypes.js"></script>
+  <script src="motor_escenas_v27/pro_editing_suite.js"></script>
+  <script src="motor_escenas_v28/disney_motion_engine.js"></script>
+  <script src="motor_escenas_v29/hyper_edit_and_detail_engine.js"></script>
+  <script src="motor_escenas_v30/mega_props_and_characters_library.js"></script>
+  <script src="motor_escenas_v30/next_level_retention_editor.js"></script>
+  <script src="motor_escenas_v31/after_effects_compositor.js"></script>
+  <script src="motor_escenas_v31/broll_cutaways_library.js"></script>
+  <script src="motor_escenas_v32/instant_frame0_hook_engine.js"></script>
+  <script src="motor_escenas_v32/ready_made_worlds_and_cast.js"></script>
+  <script src="motor_escenas_v33/mega_100_presets_studio.js"></script>
+  <script src="motor_escenas_v34/hyper_camera_rig_1000.js"></script>
+  <script src="motor_escenas_v34/procedural_universe_factory.js"></script>
+  <script src="web_app/app_director_v34.js"></script>
+</body>
+</html>
